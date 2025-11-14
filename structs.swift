@@ -1,10 +1,4 @@
-struct Potion {
-    var name: String
-    var price: Int
-    var healAmount: Int
-}
-
-//Estruturas base do jogo
+//Estruturas e classes base do jogo
 class BaseHero {
     var name: String = "Anônimo"
     var hp: Int
@@ -24,6 +18,12 @@ class BaseHero {
         self.ouro = ouro
         self.potions = potions
     }
+}
+
+struct Potion {
+    var name: String
+    var price: Int
+    var healAmount: Int
 }
 
 struct Weapon {
@@ -53,13 +53,13 @@ class Shop {
             Weapon(name: "Espada de Madeira", attack: 10, price: 0),
             Weapon(name: "Espada de Ferro", attack: 20, price: 50),
             Weapon(name: "Espada de Aço", attack: 35, price: 100),
-            Weapon(name: "Excalibur", attack: 50, price: 500)
+            Weapon(name: "Excalibur", attack: 50, price: 300)
         ]
     }
 
     func buyPotion(potion: Potion, hero: inout BaseHero) {
         if hero.ouro < potion.price {
-            print("Você não tem ouro suficiente para comprar a \(potion.name).\n")
+            printWaitClear("Você não tem ouro suficiente para comprar a \(potion.name).\n")
             return
         }
         potions.removeAll { $0.name == potion.name }
@@ -69,7 +69,7 @@ class Shop {
 
     func buyWeapon(weapon: Weapon, hero: inout BaseHero) {
         if hero.ouro < weapon.price {
-            print("Você não tem ouro suficiente para comprar a \(weapon.name).\n")
+            printWaitClear("Você não tem ouro suficiente para comprar a \(weapon.name).\n")
             return
         }
         weapons.removeAll { $0.name == weapon.name }
@@ -86,12 +86,26 @@ struct Room {
     var shop: Shop? = nil
 
     init(currRoom: Int, totalRooms: Int) {
+
+        let _chance = Int.random(in: 1...100)
+
         self.doors = Int.random(in: 1...3)
 
-        self.hasEnemy = Bool.random()
-        self.hasShop = !self.hasEnemy && Bool.random() && currRoom != totalRooms
+        // Chance de cada coisa ser gerada
+        if _chance <= 50 {
+            self.hasEnemy = true
+            self.hasShop = false
+        } else if _chance <= 80 {
+            self.hasEnemy = false
+            self.hasShop = true
+        } else {
+            self.hasEnemy = false
+            self.hasShop = false
+        }
 
         if self.hasEnemy {
+            // Gerar inimigo baseado na sala
+            // Usa o enemyList do main.swift
             let enemyNames = Array(enemyList.keys)
             let isLaterRoom = currRoom > totalRooms / 2
             let filteredEnemyNames = isLaterRoom ? enemyNames.filter { enemyList[$0]!.level >= 5 } : enemyNames.filter { enemyList[$0]!.level < 5 }

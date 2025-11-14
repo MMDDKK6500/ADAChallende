@@ -1,5 +1,11 @@
 import Foundation
 
+func printWaitClear(_ message: String) {
+    print(message)
+    _ = readLine()
+    print("\u{001B}[2J")
+}
+
 // Listas base de inimigos e armas
 let enemyList: [String: Enemy] = [
     "Goblin": Enemy(name: "Goblin", level: 1, hp: 30, attack: 5),
@@ -24,36 +30,26 @@ var hero = BaseHero(hp: 50, maxHp: 50, weapon: weaponList["Espada de Madeira"]!,
 print("Bem-vindo aventureiro, como devo lhe chamar?")
 if let inputName = readLine(), !inputName.isEmpty {
     hero.name = inputName
-    print("Saudações, \(hero.name)! Sua jornada começa agora.\n\n")
+    printWaitClear("Saudações, \(hero.name)! Sua jornada começa agora.\n\n")
 } else {
-    print("Prefere ficar anônimo, isso mesmo? Sem problemas! Sua jornada será tão misteriosa quanto você. Sua jornada começa agora.")
+    printWaitClear("Prefere ficar anônimo, isso mesmo? Sem problemas! Sua jornada será tão misteriosa quanto você. Sua jornada começa agora.\nPressione Enter para continuar...")
 }
 
 
 // História do jogo
-print("O povo de Swiftsville vem reclamando de monstros invadindo o vilarejo e causando caos.\nPressione Enter para continuar...")
-_ = readLine()
+printWaitClear("O povo de Swiftsville vem reclamando de monstros invadindo o vilarejo e causando caos.")
 
-print("A coroa real ofereceu uma recompensa para quem conseguir eliminar esses monstros.")
-_ = readLine()
+printWaitClear("A coroa real ofereceu uma recompensa para quem conseguir eliminar esses monstros.")
 
-print("Será que você tem o que é preciso para salvar Swiftsville e se tornar o herói do vilarejo?")
-_ = readLine()
+printWaitClear("Será que você tem o que é preciso para salvar Swiftsville e se tornar o herói do vilarejo?")
 
-print("Boa sorte, \(hero.name)!\n")
-_ = readLine()
-print("\u{001B}[2J")
-
+printWaitClear("Boa sorte, \(hero.name)!")
 
 // Explicação do jogo
 print("Explicação do jogo\n")
-print("Você irá explorar uma certa quantidade de salas, cada sala pode conter inimigos, tesouros ou uma loja.\nDerrote inimigos para ganhar experiência e ouro, compre armas na loja para aumentar seu poder de ataque.\nTente sobreviver e chegar até a última sala, e dependendo do seu equipamento você talvez terá uma chance contra o rei dos monstros!\n\nPressione Enter para começar sua aventura...")
-_ = readLine()
-print("\u{001B}[2J")
+printWaitClear("Você irá explorar uma certa quantidade de salas, cada sala pode conter inimigos, tesouros ou uma loja.\nDerrote inimigos para ganhar experiência e ouro, compre armas na loja para aumentar seu poder de ataque.\nTente sobreviver e chegar até a última sala, e dependendo do seu equipamento você talvez terá uma chance contra o rei dos monstros!\n\nPressione Enter para começar sua aventura...")
 
-print("Você entra na masmorra que foi vista sendo utilizada como esconderijo para os monstros...\n")
-_ = readLine()
-print("\u{001B}[2J")
+printWaitClear("Você entra na masmorra que foi vista sendo utilizada como esconderijo para os monstros...\n")
 
 
 // Sala atual e total de salas
@@ -66,7 +62,7 @@ var totalRooms = Int.random(in: 10...20)
 repeat {
     print("\u{001B}[2J")
     currRoomNum += 1
-    print("Você entrou na sala \(currRoomNum).\n")
+    print("Você entrou na \(currRoomNum)º Sala.\n")
     currRoom = Room(currRoom: currRoomNum, totalRooms: totalRooms)
 
     if currRoom.hasEnemy, var enemyInRoom = currRoom.enemy {
@@ -82,12 +78,13 @@ repeat {
             if let action = readLine() {
                 switch action {
                 case "1":
-                    // Hero attacks
+                    print("\u{001B}[2J") // clear screen
+                    // Heroi ataca
                     enemyInRoom.hp -= hero.weapon.attack
                     print("Você atacou o \(enemyInRoom.name) com sua \(hero.weapon.name), causando \(hero.weapon.attack) de dano!\n")
                     _ = readLine()
                     if enemyInRoom.hp > 0 {
-                        // Enemy attacks back
+                        // Inimigo contra-ataca
                         hero.hp -= enemyInRoom.attack
                         print("O \(enemyInRoom.name) contra-atacou, causando \(enemyInRoom.attack) de dano!\n")
                         _ = readLine()
@@ -112,7 +109,7 @@ repeat {
                                 print("Escolha inválida de poção.\n")
                             }
                         } else {
-                            print("Você não tem poções!\n")
+                            printWaitClear("Você não tem poções!\n")
                     }
                     
                 default:
@@ -122,14 +119,58 @@ repeat {
         } while enemyInRoom.hp > 0 && hero.hp > 0
 
         if hero.hp <= 0 {
-            print("Você foi derrotado pelo \(enemyInRoom.name). Fim de jogo.\n")
+            printWaitClear("Você foi derrotado pelo \(enemyInRoom.name). Fim de jogo.\n")
             break
         }
 
         print("Você derrotou o \(enemyInRoom.name)!\n")
         hero.xp += enemyInRoom.level * 10
         hero.ouro += enemyInRoom.level * 5
-        print("Você ganhou \(enemyInRoom.level * 10) XP e \(enemyInRoom.level * 5) ouro.\n")
+        printWaitClear("Você ganhou \(enemyInRoom.level * 10) XP e \(enemyInRoom.level * 5) ouro.\n")
+    } else if currRoom.hasShop, let shop = currRoom.shop {
+        printWaitClear("Você encontrou uma loja!\n")
+
+        var shopping = true
+
+        repeat {
+            print("Você tem \(hero.ouro) ouro.\n")
+            print("O que você deseja comprar?\n1. Poções\n2. Armas\n3. Sair da loja\n")
+            if let shopChoice = readLine() {
+                print("\u{001B}[2J")
+                switch shopChoice {
+                case "1":
+                    print("Poções disponíveis:")
+                    for (index, potion) in shop.potions.enumerated() {
+                        print("\(index + 1). \(potion.name) - Preço: \(potion.price) ouro - Cura: \(potion.healAmount) HP")
+                    }
+                    print("Digite o número da poção que deseja comprar ou '0' para voltar:")
+                    if let potionChoice = readLine(), let potionIndex = Int(potionChoice), potionIndex > 0, potionIndex <= shop.potions.count {
+                        let potion = shop.potions[potionIndex - 1]
+                        shop.buyPotion(potion: potion, hero: &hero)
+                    }
+                    
+                case "2":
+                    print("Armas disponíveis:")
+                    for (index, weapon) in shop.weapons.enumerated() {
+                        print("\(index + 1). \(weapon.name) - Preço: \(weapon.price) ouro - Ataque: \(weapon.attack)")
+                    }
+                    print("Digite o número da arma que deseja comprar ou '0' para voltar:")
+                    if let weaponChoice = readLine(), let weaponIndex = Int(weaponChoice), weaponIndex > 0, weaponIndex <= shop.weapons.count {
+                        let weapon = shop.weapons[weaponIndex - 1]
+                        shop.buyWeapon(weapon: weapon, hero: &hero)
+                    }
+                    
+                case "3":
+                    shopping = false
+                    printWaitClear("Você saiu da loja.\n")
+                    
+                default:
+                    print("Escolha inválida. Tente novamente.\n")
+                }
+            }
+        } while shopping
+    } else {
+        print("A sala está vazia. Você segue em frente.\n")
     }
 
     print("Pressione Enter para continuar...")
