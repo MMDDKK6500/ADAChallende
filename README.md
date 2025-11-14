@@ -3,6 +3,9 @@
 
 Feito entre os dias 13 e 14 de Novembro, utilizando VSCode(Remote WSL) e XCode
 
+Recomendado jogar utilizando o script <code>test.sh</code>, que compila o código swift e executa ele no terminal<br>
+mas também funciona direto pelo XCode, só é menos prático
+
 ## Instruções do jogo
 Utilize a tecla de Enter/Return para progredir, e selecione as opções quando apresentadas.
 
