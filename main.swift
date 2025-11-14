@@ -6,25 +6,31 @@ func printWaitClear(_ message: String) {
     print("\u{001B}[2J")
 }
 
-// Listas base de inimigos e armas
+// Listas base
 let enemyList: [String: Enemy] = [
-    "Goblin": Enemy(name: "Goblin", level: 1, hp: 30, attack: 5),
-    "Esqueleto": Enemy(name: "Esqueleto", level: 2, hp: 40, attack: 8),
+    "Goblin": Enemy(name: "Goblin", level: 1, hp: 25, attack: 5),
+    "Esqueleto": Enemy(name: "Esqueleto", level: 2, hp: 35, attack: 7),
     "Orc": Enemy(name: "Orc", level: 5, hp: 50, attack: 10),
     "Zumbi": Enemy(name: "Zumbi", level: 6, hp: 60, attack: 15),
     "Troll": Enemy(name: "Troll", level: 7, hp: 80, attack: 20),
-    "Dragão": Enemy(name: "Dragão", level: 10, hp: 150, attack: 25)
+    "Dragão": Enemy(name: "Dragão", level: 10, hp: 100, attack: 25)
 ]
 
 let weaponList: [String: Weapon] = [
-    "Espada de Madeira": Weapon(name: "Espada de Madeira", attack: 10, price: 0),
-    "Espada de Ferro": Weapon(name: "Espada de Ferro", attack: 20, price: 50),
-    "Espada de Aço": Weapon(name: "Espada de Aço", attack: 35, price: 100),
-    "Excalibur": Weapon(name: "Excalibur", attack: 50, price: 500)
+    "Espada de Madeira": Weapon(name: "Espada de Madeira", attack: 7, price: 0),
+    "Espada de Ferro": Weapon(name: "Espada de Ferro", attack: 15, price: 50),
+    "Espada de Aço": Weapon(name: "Espada de Aço", attack: 30, price: 90),
+    "Excalibur": Weapon(name: "Excalibur", attack: 50, price: 300)
+]
+
+let potionList: [String: Potion] = [
+    "Poção Pequena": Potion(name: "Poção Pequena", price: 10, healAmount: 10),
+    "Poção Média": Potion(name: "Poção Média", price: 25, healAmount: 20),
+    "Poção Grande": Potion(name: "Poção Grande", price: 50, healAmount: 50)
 ]
 
 // variavel do heroi
-var hero = BaseHero(hp: 50, maxHp: 50, weapon: weaponList["Espada de Madeira"]!, level: 1, xp: 0, ouro: 50, potions: [])
+var hero = BaseHero(hp: 30, maxHp: 30, weapon: weaponList["Espada de Madeira"]!, level: 1, xp: 0, ouro: 50, potions: [potionList["Poção Pequena"]!])
 
 // introdução do jogo
 print("Bem-vindo aventureiro, como devo lhe chamar?")
@@ -72,7 +78,7 @@ repeat {
         repeat {
             print("\u{001B}[2J")
             print("\(hero.name) - HP: \(hero.hp)/\(hero.maxHp) | Arma: \(hero.weapon.name) (Ataque: \(hero.weapon.attack))\n")
-            print("\(enemyInRoom.name) - HP: \(enemyInRoom.hp)\n")
+            print("\(enemyInRoom.name) - Lv: \(enemyInRoom.level) - HP: \(enemyInRoom.hp)\n")
             print("O que você deseja fazer?\n1. Atacar\n2. Usar Poção\n")
             
             if let action = readLine() {
@@ -80,13 +86,15 @@ repeat {
                 case "1":
                     print("\u{001B}[2J") // clear screen
                     // Heroi ataca
-                    enemyInRoom.hp -= hero.weapon.attack
-                    print("Você atacou o \(enemyInRoom.name) com sua \(hero.weapon.name), causando \(hero.weapon.attack) de dano!\n")
+                    let damage = hero.calcDmg()
+                    enemyInRoom.hp -= damage
+                    print("Você atacou o \(enemyInRoom.name) com sua \(hero.weapon.name), causando \(damage) de dano!\n")
                     _ = readLine()
                     if enemyInRoom.hp > 0 {
                         // Inimigo contra-ataca
-                        hero.hp -= enemyInRoom.attack
-                        print("O \(enemyInRoom.name) contra-atacou, causando \(enemyInRoom.attack) de dano!\n")
+                        let enemyDamage = enemyInRoom.calcDmg()
+                        hero.hp -= enemyDamage
+                        print("O \(enemyInRoom.name) contra-atacou, causando \(enemyDamage) de dano!\n")
                         _ = readLine()
                     }
                     
@@ -124,9 +132,12 @@ repeat {
         }
 
         print("Você derrotou o \(enemyInRoom.name)!\n")
-        hero.xp += enemyInRoom.level * 10
-        hero.ouro += enemyInRoom.level * 5
+        hero.xp += enemyInRoom.level * 5
+        hero.ouro += enemyInRoom.level * 10
         printWaitClear("Você ganhou \(enemyInRoom.level * 10) XP e \(enemyInRoom.level * 5) ouro.\n")
+        if hero.xp >= hero.level * 20 {
+            hero.levelUp()
+        }
     } else if currRoom.hasShop, let shop = currRoom.shop {
         printWaitClear("Você encontrou uma loja!\n")
 

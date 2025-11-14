@@ -18,6 +18,27 @@ class BaseHero {
         self.ouro = ouro
         self.potions = potions
     }
+
+    func calcDmg() -> Int {
+        let _chance = Int.random(in: 1...10)
+        if _chance == 10 {
+            print("Ataque crítico!")
+            return weapon.attack * 2 // Critical hit
+        }  else if _chance <= 2 {
+            print("Ataque falhou!")
+            return 0 // Miss
+        } else {
+            return weapon.attack + (Bool.random() ? -1 : 1) // Normal hit
+        }
+    }
+
+    func levelUp() {
+        level += 1
+        maxHp += 10
+        hp = maxHp
+        printWaitClear("Parabéns! Você subiu para o nível \(level)!\nSeu HP máximo aumentou para \(maxHp).\n")
+    }
+
 }
 
 struct Potion {
@@ -37,25 +58,24 @@ struct Enemy {
     var level: Int
     var hp: Int
     var attack: Int
+
+    func calcDmg() -> Int {
+        let _chance = Int.random(in: 1...10)
+        if _chance == 10 {
+            print("Ataque crítico!")
+            return attack * 2 // Critical hit
+        }  else if _chance <= 2 {
+            print("Ataque falhou!")
+            return 0 // Miss
+        } else {
+            return attack + (Bool.random() ? -1 : 1) // Normal hit
+        }
+    }
 }
 
 class Shop {
-    var potions: [Potion]
-    var weapons: [Weapon]
-
-    init() {
-        potions = [
-            Potion(name: "Poção Pequena", price: 10, healAmount: 20),
-            Potion(name: "Poção Média", price: 25, healAmount: 50),
-            Potion(name: "Poção Grande", price: 50, healAmount: 100)
-        ]
-        weapons = [
-            Weapon(name: "Espada de Madeira", attack: 10, price: 0),
-            Weapon(name: "Espada de Ferro", attack: 20, price: 50),
-            Weapon(name: "Espada de Aço", attack: 35, price: 100),
-            Weapon(name: "Excalibur", attack: 50, price: 300)
-        ]
-    }
+    var potions: [Potion] = potionList.map { $0.value }
+    var weapons: [Weapon] = weaponList.map { $0.value }
 
     func buyPotion(potion: Potion, hero: inout BaseHero) {
         if hero.ouro < potion.price {
@@ -92,7 +112,7 @@ struct Room {
         self.doors = Int.random(in: 1...3)
 
         // Chance de cada coisa ser gerada
-        if _chance <= 50 {
+        if _chance <= 60 {
             self.hasEnemy = true
             self.hasShop = false
         } else if _chance <= 80 {
